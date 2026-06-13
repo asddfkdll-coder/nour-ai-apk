@@ -38,26 +38,6 @@ jobs:
     - name: Build web
       run: pnpm build
       
-    - name: Update capacitor config
-      run: |
-        cat > capacitor.config.ts << 'CONFIG'
-        import { CapacitorConfig } from '@capacitor/cli';
-        const config: CapacitorConfig = {
-          appId: 'com.nour.ai',
-          appName: 'Nour AI',
-          webDir: 'dist/public',
-          server: {
-            url: 'http://localhost:3000',
-            cleartext: true,
-            allowNavigation: ['localhost'],
-          },
-          android: {
-            allowMixedContent: true,
-          },
-        };
-        export default config;
-        CONFIG
-      
     - name: Sync Android
       run: npx cap sync android
       
