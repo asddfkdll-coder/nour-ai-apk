@@ -1,5 +1,4 @@
 import { CapacitorConfig } from '@capacitor/cli';
-
 const config: CapacitorConfig = {
   appId: 'com.nour.ai',
   appName: 'Nour AI',
@@ -13,5 +12,4 @@ const config: CapacitorConfig = {
     allowMixedContent: true,
   },
 };
-
 export default config;
