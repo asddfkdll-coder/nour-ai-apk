@@ -129,6 +129,7 @@ const plugins = [
 
 export default defineConfig({
   base: "/",
+  base: "/",
   plugins,
   resolve: {
     alias: {
