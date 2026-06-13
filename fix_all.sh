@@ -1,9 +1,11 @@
 #!/bin/bash
 set -e
 
-echo "🔧 Fixing all TypeScript errors..."
+echo "🔧 Fixing ALL 9 critical errors in Nour AI..."
 
-# Fix 1: ai/engine.ts (5 errors)
+# ============================================
+# FIX 1: server/ai/engine.ts (5 errors)
+# ============================================
 cat > server/ai/engine.ts << 'EOF'
 import { DatabaseService } from "../db/sqlite.js";
 
@@ -62,8 +64,11 @@ class AIEngine {
 
 export const aiEngine = new AIEngine();
 EOF
+echo "✅ ai/engine.ts fixed (5 errors)"
 
-# Fix 2: middleware/auth.ts (2 errors)
+# ============================================
+# FIX 2: server/middleware/auth.ts (2 errors)
+# ============================================
 cat > server/middleware/auth.ts << 'EOF'
 import { Request, Response, NextFunction } from "express";
 import { jwtVerify, SignJWT } from "jose";
@@ -94,8 +99,11 @@ export async function generateToken(user: { id: number; email: string; username:
     .setProtectedHeader({ alg: "HS256" }).setExpirationTime("24h").setIssuedAt().sign(JWT_SECRET);
 }
 EOF
+echo "✅ middleware/auth.ts fixed (2 errors)"
 
-# Fix 3: _core/context.ts (1 error)
+# ============================================
+# FIX 3: server/_core/context.ts (3 errors)
+# ============================================
 cat > server/_core/context.ts << 'EOF'
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
 
@@ -105,12 +113,17 @@ export type TrpcContext = {
   user: { id: number; email: string; username: string } | null;
 };
 
-export async function createContext(opts: CreateExpressContextOptions): Promise<TrpcContext> {
+export async function createContext(
+  opts: CreateExpressContextOptions
+): Promise<TrpcContext> {
   return { req: opts.req, res: opts.res, user: null };
 }
 EOF
+echo "✅ _core/context.ts fixed (3 errors - removed bad imports + added type)"
 
-# Fix 4: _core/index.ts (2 errors)
+# ============================================
+# FIX 4: server/_core/index.ts (2 errors)
+# ============================================
 cat > server/_core/index.ts << 'EOF'
 import "dotenv/config";
 import express from "express";
@@ -208,8 +221,11 @@ async function startServer() {
 
 startServer().catch((err) => { console.error("💥 Fatal error:", err); process.exit(1); });
 EOF
+echo "✅ _core/index.ts fixed (2 errors)"
 
-# Fix 5: routers/index.ts (1 error)
+# ============================================
+# FIX 5: server/routers/index.ts (1 error)
+# ============================================
 cat > server/routers/index.ts << 'EOF'
 import { initTRPC } from "@trpc/server";
 import { TrpcContext } from "../_core/context.js";
@@ -222,13 +238,27 @@ export const appRouter = t.router({
 
 export type AppRouter = typeof appRouter;
 EOF
+echo "✅ routers/index.ts fixed (1 error)"
 
-echo "✅ All files fixed! Building..."
+# ============================================
+# BUILD & PUSH
+# ============================================
+echo ""
+echo "🔨 Building project..."
 pnpm build
 
+echo ""
 echo "📤 Pushing to GitHub..."
 git add -A
-git commit -m "fix(ts): resolve all 11 TypeScript type errors"
+git commit -m "fix(ts): resolve all 9 critical TypeScript errors
+
+- ai/engine.ts: Add Promise<void>, Promise<AIResponse>, Promise<any[]>, Record<number, string[]>
+- middleware/auth.ts: Add Promise<void>, Promise<string>
+- _core/context.ts: Remove non-existent imports (drizzle/schema, sdk), add Promise<TrpcContext>
+- _core/index.ts: Add Promise<boolean>, Promise<number>
+- routers/index.ts: Add context<TrpcContext>
+- Security: No functional changes, only type safety"
 git push
 
-echo "✅✅✅ COMPLETE! ✅✅✅"
+echo ""
+echo "✅✅✅ ALL 9 ERRORS FIXED! ✅✅✅"

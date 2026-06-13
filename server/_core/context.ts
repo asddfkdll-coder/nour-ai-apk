@@ -6,6 +6,8 @@ export type TrpcContext = {
   user: { id: number; email: string; username: string } | null;
 };
 
-export async function createContext(opts: CreateExpressContextOptions): Promise<TrpcContext> {
+export async function createContext(
+  opts: CreateExpressContextOptions
+): Promise<TrpcContext> {
   return { req: opts.req, res: opts.res, user: null };
 }
