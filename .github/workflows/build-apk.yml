@@ -35,6 +35,12 @@ jobs:
     - name: Install dependencies
       run: pnpm install
       
+    - name: Remove PWA plugin
+      run: |
+        sed -i 's/import { VitePWA } from .vite-plugin-pwa.//' vite.config.ts
+        sed -i 's/VitePWA({//' vite.config.ts
+        sed -i 's/}),//' vite.config.ts
+      
     - name: Build web
       run: pnpm build
       

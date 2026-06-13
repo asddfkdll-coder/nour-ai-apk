@@ -158,6 +158,10 @@ const plugins = [
   vitePluginManusRuntime(),
   vitePluginManusDebugCollector(),
   VitePWA({
+    injectRegister: false,
+    workbox: {
+      globIgnores: ["**/*"],
+    },
     registerType: "autoUpdate",
     includeAssets: ["favicon.ico", "apple-touch-icon.png", "mask-icon.svg"],
     manifest: {
