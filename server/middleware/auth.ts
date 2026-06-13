@@ -19,10 +19,14 @@ export async function authenticateToken(
     const { payload } = await jwtVerify(token, JWT_SECRET, { clockTolerance: 60 });
     req.user = { id: payload.userId as number, email: payload.email as string, username: payload.username as string };
     next();
-  } catch (error) { res.status(403).json({ error: "Invalid or expired token" }); }
+  } catch {
+    res.status(403).json({ error: "Invalid or expired token" });
+  }
 }
 
-export async function generateToken(user: { id: number; email: string; username: string }): Promise<string> {
+export async function generateToken(
+  user: { id: number; email: string; username: string }
+): Promise<string> {
   return new SignJWT({ userId: user.id, email: user.email, username: user.username })
     .setProtectedHeader({ alg: "HS256" }).setExpirationTime("24h").setIssuedAt().sign(JWT_SECRET);
 }

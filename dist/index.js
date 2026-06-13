@@ -11,13 +11,12 @@ import { createExpressMiddleware } from "@trpc/server/adapters/express";
 // server/routers/index.ts
 import { initTRPC } from "@trpc/server";
 var t = initTRPC.context().create();
-var appRouter = t.router({
-  health: t.procedure.query(() => ({ status: "ok", timestamp: (/* @__PURE__ */ new Date()).toISOString() }))
-});
+var appRouter = t.router({ health: t.procedure.query(() => ({ status: "ok", timestamp: (/* @__PURE__ */ new Date()).toISOString() })) });
 
 // server/_core/context.ts
 async function createContext(opts) {
-  return { req: opts.req, res: opts.res, user: null };
+  const authReq = opts.req;
+  return { req: opts.req, res: opts.res, user: authReq.user || null };
 }
 
 // server/_core/vite.ts
@@ -253,7 +252,7 @@ async function authenticateToken(req, res, next) {
     const { payload } = await jwtVerify(token, JWT_SECRET, { clockTolerance: 60 });
     req.user = { id: payload.userId, email: payload.email, username: payload.username };
     next();
-  } catch (error) {
+  } catch {
     res.status(403).json({ error: "Invalid or expired token" });
   }
 }
@@ -320,44 +319,22 @@ import { Router as Router4 } from "express";
 // server/ai/engine.ts
 var AIEngine = class {
   modelLoaded = false;
-  db;
-  constructor() {
-    this.db = new DatabaseService();
-  }
+  db = new DatabaseService();
   async loadModel() {
     console.log("\u{1F9E0} AI Engine initialized");
     this.modelLoaded = true;
   }
   async chat(characterId, message, userId) {
     if (!this.modelLoaded) await this.loadModel();
-    const response = await this.generateResponse(characterId, message);
-    this.db.saveMessage({
-      characterId,
-      userId: userId || 0,
-      content: message,
-      response: response.text,
-      role: "user",
-      createdAt: /* @__PURE__ */ new Date()
-    });
-    this.db.saveMessage({
-      characterId,
-      userId: userId || 0,
-      content: response.text,
-      response: null,
-      role: "ai",
-      createdAt: /* @__PURE__ */ new Date()
-    });
-    return response;
+    const r = await this.generateResponse(characterId, message);
+    this.db.saveMessage({ characterId, userId: userId || 0, content: message, response: r.text, role: "user", createdAt: /* @__PURE__ */ new Date() });
+    this.db.saveMessage({ characterId, userId: userId || 0, content: r.text, response: null, role: "ai", createdAt: /* @__PURE__ */ new Date() });
+    return r;
   }
   async generateResponse(characterId, _message) {
-    const responses = {
-      1: ["\u0645\u0631\u062D\u0628\u0627\u064B! \u0623\u0646\u0627 \u0646\u0648\u0631\u060C \u0645\u0633\u0627\u0639\u062F\u0643 \u0627\u0644\u0630\u0643\u064A.", "\u0647\u0630\u0627 \u0645\u0648\u0636\u0648\u0639 \u0645\u062B\u064A\u0631 \u0644\u0644\u0627\u0647\u062A\u0645\u0627\u0645!", "\u0623\u0646\u0627 \u0647\u0646\u0627 \u0644\u0623\u0633\u062A\u0645\u0639 \u0625\u0644\u064A\u0643."],
-      2: ["\u0623\u0647\u0644\u0627\u064B \u0628\u0643! \u0623\u0646\u0627 \u0633\u0627\u0631\u0629 \u{1F60A}", "\u0648\u062C\u0647\u0629 \u0646\u0638\u0631\u0643 \u0645\u062B\u064A\u0631\u0629!", "\u062F\u0639\u0646\u0627 \u0646\u0646\u0627\u0642\u0634 \u0647\u0630\u0627!"],
-      3: ["\u0645\u0631\u062D\u0628\u0627\u064B. \u0623\u0646\u0627 \u0623\u062D\u0645\u062F.", "\u0645\u0646 \u0627\u0644\u0646\u0627\u062D\u064A\u0629 \u0627\u0644\u062A\u0642\u0646\u064A\u0629...", "\u0623\u0641\u0647\u0645 \u0645\u0627 \u062A\u0642\u0635\u062F."]
-    };
-    const characterResponses = responses[characterId] || responses[1];
-    const randomResponse = characterResponses[Math.floor(Math.random() * characterResponses.length)];
-    return { text: randomResponse, emotion: "happy", timestamp: /* @__PURE__ */ new Date() };
+    const responses = { 1: ["\u0645\u0631\u062D\u0628\u0627\u064B! \u0623\u0646\u0627 \u0646\u0648\u0631\u060C \u0645\u0633\u0627\u0639\u062F\u0643 \u0627\u0644\u0630\u0643\u064A.", "\u0647\u0630\u0627 \u0645\u0648\u0636\u0648\u0639 \u0645\u062B\u064A\u0631 \u0644\u0644\u0627\u0647\u062A\u0645\u0627\u0645!", "\u0623\u0646\u0627 \u0647\u0646\u0627 \u0644\u0623\u0633\u062A\u0645\u0639 \u0625\u0644\u064A\u0643."], 2: ["\u0623\u0647\u0644\u0627\u064B \u0628\u0643! \u0623\u0646\u0627 \u0633\u0627\u0631\u0629 \u{1F60A}", "\u0648\u062C\u0647\u0629 \u0646\u0638\u0631\u0643 \u0645\u062B\u064A\u0631\u0629!", "\u062F\u0639\u0646\u0627 \u0646\u0646\u0627\u0642\u0634 \u0647\u0630\u0627!"], 3: ["\u0645\u0631\u062D\u0628\u0627\u064B. \u0623\u0646\u0627 \u0623\u062D\u0645\u062F.", "\u0645\u0646 \u0627\u0644\u0646\u0627\u062D\u064A\u0629 \u0627\u0644\u062A\u0642\u0646\u064A\u0629...", "\u0623\u0641\u0647\u0645 \u0645\u0627 \u062A\u0642\u0635\u062F."] };
+    const cr = responses[characterId] || responses[1];
+    return { text: cr[Math.floor(Math.random() * cr.length)], emotion: "happy", timestamp: /* @__PURE__ */ new Date() };
   }
   async getHistory(characterId, userId) {
     return this.db.getMessages(characterId, userId);
@@ -476,42 +453,9 @@ router5.post("/login", async (req, res) => {
 var auth_default = router5;
 
 // server/_core/index.ts
-var securityMiddleware = [
-  helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        scriptSrc: ["'self'"],
-        imgSrc: ["'self'", "data:", "blob:", "https:"],
-        connectSrc: ["'self'", "http://localhost:3000", "capacitor://localhost"],
-        fontSrc: ["'self'", "data:"]
-      }
-    },
-    crossOriginEmbedderPolicy: false
-  }),
-  cors({
-    origin: ["http://localhost:3000", "capacitor://localhost", "http://localhost:5173"],
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"]
-  })
-];
-var limiter = rateLimit({
-  windowMs: 15 * 60 * 1e3,
-  max: 100,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: "Too many requests" },
-  skip: (req) => req.path === "/api/health"
-});
-var aiLimiter = rateLimit({
-  windowMs: 60 * 1e3,
-  max: 10,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: "AI rate limit exceeded" }
-});
+var securityMiddleware = [helmet({ contentSecurityPolicy: { directives: { defaultSrc: ["'self'"], styleSrc: ["'self'", "'unsafe-inline'"], scriptSrc: ["'self'"], imgSrc: ["'self'", "data:", "blob:", "https:"], connectSrc: ["'self'", "http://localhost:3000", "capacitor://localhost"], fontSrc: ["'self'", "data:"] } }, crossOriginEmbedderPolicy: false }), cors({ origin: ["http://localhost:3000", "capacitor://localhost", "http://localhost:5173"], credentials: true, methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], allowedHeaders: ["Content-Type", "Authorization"] })];
+var limiter = rateLimit({ windowMs: 15 * 60 * 1e3, max: 100, standardHeaders: true, legacyHeaders: false, message: { error: "Too many requests" }, skip: (req) => req.path === "/api/health" });
+var aiLimiter = rateLimit({ windowMs: 60 * 1e3, max: 10, standardHeaders: true, legacyHeaders: false, message: { error: "AI rate limit exceeded" } });
 function isPortAvailable(port) {
   return new Promise((resolve) => {
     const server = net.createServer();
