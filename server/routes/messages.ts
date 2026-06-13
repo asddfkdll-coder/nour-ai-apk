@@ -1,32 +1,29 @@
-import { Router } from 'express';
-import { getDb } from '../db/sqlite';
+import { Router } from "express";
+import { getDb } from "../db/sqlite";
+import { authenticateToken } from "../middleware/auth";
 
 const router = Router();
 
-router.get('/:characterId', async (req, res) => {
+// GET /api/messages/:characterId
+router.get("/:characterId", authenticateToken, async (req, res) => {
   try {
-    const db = await getDb();
-    const messages = await db.all(
-      'SELECT * FROM messages WHERE character_id = ? ORDER BY timestamp ASC',
-      req.params.characterId
-    );
-    res.json(messages);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch messages' });
-  }
-});
+    const characterId = parseInt(req.params.characterId);
+    const userId = req.user?.id;
 
-router.post('/', async (req, res) => {
-  try {
-    const db = await getDb();
-    const { characterId, content, sender } = req.body;
-    const result = await db.run(
-      'INSERT INTO messages (character_id, content, sender) VALUES (?, ?, ?)',
-      [characterId, content, sender]
+    const db = getDb();
+    const messages = await db.all(
+      `SELECT m.*, c.name as character_name 
+       FROM messages m 
+       JOIN characters c ON m.character_id = c.id 
+       WHERE m.character_id = ? AND m.user_id = ? 
+       ORDER BY m.created_at ASC`,
+      [characterId, userId]
     );
-    res.json({ id: result.lastID, characterId, content, sender });
+
+    res.json({ success: true, messages });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to send message' });
+    console.error("Messages Error:", error);
+    res.status(500).json({ error: "Failed to fetch messages" });
   }
 });
 
