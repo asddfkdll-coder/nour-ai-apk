@@ -1,4 +1,5 @@
 import { CapacitorConfig } from '@capacitor/cli';
+
 const config: CapacitorConfig = {
   appId: 'com.nour.ai',
   appName: 'Nour AI',
@@ -11,5 +12,13 @@ const config: CapacitorConfig = {
   android: {
     allowMixedContent: true,
   },
+  plugins: {
+    SplashScreen: {
+      launchShowDuration: 2000,
+      backgroundColor: '#0f172a',
+      androidScaleType: 'CENTER_CROP',
+    },
+  },
 };
+
 export default config;

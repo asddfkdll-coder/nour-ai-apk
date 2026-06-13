@@ -11,6 +11,8 @@ import { serveStatic } from "./vite";
 import { securityMiddleware, rateLimiter } from "../security";
 import { seedSoulChatCharacters } from "../soulchat_seed_v2";
 import healthRouter from "../routes/health";
+import messagesRouter from "../routes/messages";
+import charactersRouter from "../routes/characters";
 import { initDatabase } from "../db/sqlite";
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -46,8 +48,12 @@ async function startServer() {
 
   registerStorageProxy(app);
   registerOAuthRoutes(app);
+  
   app.use("/api/health", healthRouter);
+  app.use("/api/messages", messagesRouter);
+  app.use("/api/characters", charactersRouter);
   app.use("/api/trpc", createExpressMiddleware({ router: appRouter, createContext }));
+  
   serveStatic(app);
 
   try {
@@ -62,7 +68,9 @@ async function startServer() {
 
   server.listen(port, () => {
     console.log(`🚀 Server running on http://localhost:${port}/`);
-    console.log(`📊 Health check: http://localhost:${port}/api/health`);
+    console.log(`📊 Health: http://localhost:${port}/api/health`);
+    console.log(`💬 Messages: http://localhost:${port}/api/messages`);
+    console.log(`👥 Characters: http://localhost:${port}/api/characters`);
   });
 }
 

@@ -6,6 +6,7 @@ import { createRoot } from "react-dom/client";
 import superjson from "superjson";
 import App from "./App";
 import { SplashScreen } from "./components/SplashScreen";
+import { ThemeToggle } from "./components/ThemeToggle";
 import { getLoginUrl } from "./const";
 import "./index.css";
 
@@ -46,6 +47,7 @@ createRoot(document.getElementById("root")!).render(
   <trpc.Provider client={trpcClient} queryClient={queryClient}>
     <QueryClientProvider client={queryClient}>
       <SplashScreen>
+        <ThemeToggle />
         <App />
       </SplashScreen>
     </QueryClientProvider>
