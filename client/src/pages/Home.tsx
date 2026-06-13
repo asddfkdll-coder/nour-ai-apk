@@ -1,3 +1,4 @@
+import { useCharacters, useNetwork } from '@/_core/hooks/useCharacters';
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";

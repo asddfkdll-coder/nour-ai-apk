@@ -10,44 +10,19 @@ import { createExpressMiddleware } from "@trpc/server/adapters/express";
 
 // server/routers/index.ts
 import { initTRPC } from "@trpc/server";
-var t = initTRPC.context().create();
-var appRouter = t.router({ health: t.procedure.query(() => ({ status: "ok", timestamp: (/* @__PURE__ */ new Date()).toISOString() })) });
-
-// server/_core/context.ts
-async function createContext(opts) {
-  const authReq = opts.req;
-  return { req: opts.req, res: opts.res, user: authReq.user || null };
-}
-
-// server/_core/vite.ts
-import express from "express";
-import path from "path";
-import { fileURLToPath } from "url";
-var __filename = fileURLToPath(import.meta.url);
-var __dirname = path.dirname(__filename);
-function serveStatic(app) {
-  const distPath = path.resolve(__dirname, "../../dist/public");
-  app.use(express.static(distPath));
-  app.get("*", (_req, res) => {
-    res.sendFile(path.join(distPath, "index.html"));
-  });
-}
-
-// server/routes/health.ts
-import { Router } from "express";
 
 // server/db/sqlite.ts
 import { DatabaseSync } from "node:sqlite";
-import path2 from "path";
-import { fileURLToPath as fileURLToPath2 } from "url";
+import path from "path";
+import { fileURLToPath } from "url";
 import fs from "fs";
-var __filename2 = fileURLToPath2(import.meta.url);
-var __dirname2 = path2.dirname(__filename2);
-var dataDir = path2.resolve(__dirname2, "../../data");
+var __filename = fileURLToPath(import.meta.url);
+var __dirname = path.dirname(__filename);
+var dataDir = path.resolve(__dirname, "../../data");
 if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
 }
-var DB_PATH = path2.resolve(dataDir, "nour-ai.db");
+var DB_PATH = path.resolve(dataDir, "nour-ai.db");
 var db = null;
 function initDatabase() {
   try {
@@ -202,7 +177,67 @@ var DatabaseService = class {
   }
 };
 
+// server/routers/index.ts
+import { jwtVerify } from "jose";
+var t = initTRPC.context().create();
+var JWT_SECRET = new TextEncoder().encode(
+  process.env.JWT_SECRET || "nour-ai-secret-key-change-in-production"
+);
+var appRouter = t.router({
+  health: t.procedure.query(() => {
+    return { status: "ok", timestamp: (/* @__PURE__ */ new Date()).toISOString() };
+  }),
+  auth: t.router({
+    me: t.procedure.query(async ({ ctx }) => {
+      const authHeader = ctx.req.headers["authorization"];
+      const token = authHeader && authHeader.split(" ")[1];
+      if (!token) return null;
+      try {
+        const { payload } = await jwtVerify(token, JWT_SECRET, { clockTolerance: 60 });
+        return {
+          id: payload.userId,
+          email: payload.email,
+          username: payload.username,
+          role: payload.role || "user"
+        };
+      } catch {
+        return null;
+      }
+    }),
+    logout: t.procedure.mutation(async () => {
+      return { success: true };
+    })
+  }),
+  characters: t.router({
+    list: t.procedure.query(async () => {
+      const db2 = getDb();
+      return db2.prepare("SELECT id, name, description, avatar_url, personality FROM characters").all();
+    })
+  })
+});
+
+// server/_core/context.ts
+async function createContext(opts) {
+  const authReq = opts.req;
+  return { req: opts.req, res: opts.res, user: authReq.user || null };
+}
+
+// server/_core/vite.ts
+import express from "express";
+import path2 from "path";
+import { fileURLToPath as fileURLToPath2 } from "url";
+var __filename2 = fileURLToPath2(import.meta.url);
+var __dirname2 = path2.dirname(__filename2);
+function serveStatic(app) {
+  const distPath = path2.resolve(__dirname2, "../../dist/public");
+  app.use(express.static(distPath));
+  app.get("*", (_req, res) => {
+    res.sendFile(path2.join(distPath, "index.html"));
+  });
+}
+
 // server/routes/health.ts
+import { Router } from "express";
 var router = Router();
 router.get("/", (_req, res) => {
   try {
@@ -237,8 +272,8 @@ var health_default = router;
 import { Router as Router2 } from "express";
 
 // server/middleware/auth.ts
-import { jwtVerify, SignJWT } from "jose";
-var JWT_SECRET = new TextEncoder().encode(
+import { jwtVerify as jwtVerify2, SignJWT } from "jose";
+var JWT_SECRET2 = new TextEncoder().encode(
   process.env.JWT_SECRET || "nour-ai-secret-key-change-in-production"
 );
 async function authenticateToken(req, res, next) {
@@ -249,7 +284,7 @@ async function authenticateToken(req, res, next) {
     return;
   }
   try {
-    const { payload } = await jwtVerify(token, JWT_SECRET, { clockTolerance: 60 });
+    const { payload } = await jwtVerify2(token, JWT_SECRET2, { clockTolerance: 60 });
     req.user = { id: payload.userId, email: payload.email, username: payload.username };
     next();
   } catch {
@@ -257,7 +292,7 @@ async function authenticateToken(req, res, next) {
   }
 }
 async function generateToken(user) {
-  return new SignJWT({ userId: user.id, email: user.email, username: user.username }).setProtectedHeader({ alg: "HS256" }).setExpirationTime("24h").setIssuedAt().sign(JWT_SECRET);
+  return new SignJWT({ userId: user.id, email: user.email, username: user.username }).setProtectedHeader({ alg: "HS256" }).setExpirationTime("24h").setIssuedAt().sign(JWT_SECRET2);
 }
 
 // server/routes/messages.ts
@@ -453,7 +488,7 @@ router5.post("/login", async (req, res) => {
 var auth_default = router5;
 
 // server/_core/index.ts
-var securityMiddleware = [helmet({ contentSecurityPolicy: { directives: { defaultSrc: ["'self'"], styleSrc: ["'self'", "'unsafe-inline'"], scriptSrc: ["'self'"], imgSrc: ["'self'", "data:", "blob:", "https:"], connectSrc: ["'self'", "http://localhost:3000", "capacitor://localhost"], fontSrc: ["'self'", "data:"] } }, crossOriginEmbedderPolicy: false }), cors({ origin: ["http://localhost:3000", "capacitor://localhost", "http://localhost:5173"], credentials: true, methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], allowedHeaders: ["Content-Type", "Authorization"] })];
+var securityMiddleware = [helmet({ contentSecurityPolicy: { directives: { defaultSrc: ["'self'"], styleSrc: ["'self'", "'unsafe-inline'"], scriptSrc: ["'self'"], imgSrc: ["'self'", "data:", "blob:", "https:"], connectSrc: ["'self'", "http://localhost:3000", "capacitor://localhost"], fontSrc: ["'self'", "data:"] } }, crossOriginEmbedderPolicy: false }), cors({ origin: ["http://localhost:3000", "http://localhost:5173", "capacitor://localhost", "http://localhost", "http://127.0.0.1:3000", "http://127.0.0.1:5173"], credentials: true, methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], allowedHeaders: ["Content-Type", "Authorization"] })];
 var limiter = rateLimit({ windowMs: 15 * 60 * 1e3, max: 100, standardHeaders: true, legacyHeaders: false, message: { error: "Too many requests" }, skip: (req) => req.path === "/api/health" });
 var aiLimiter = rateLimit({ windowMs: 60 * 1e3, max: 10, standardHeaders: true, legacyHeaders: false, message: { error: "AI rate limit exceeded" } });
 function isPortAvailable(port) {

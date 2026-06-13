@@ -10,6 +10,8 @@ import Dashboard from "./pages/Dashboard";
 import ConversationHistory from "./pages/ConversationHistory";
 import Settings from "./pages/Settings";
 import AdminDashboard from "./pages/AdminDashboard";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Spinner } from "./components/ui/spinner";
 
@@ -18,7 +20,7 @@ function Router() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center">
         <Spinner className="h-8 w-8" />
       </div>
     );
@@ -27,16 +29,17 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/login" component={Login} />
+      <Route path="/register" component={Register} />
+      <Route path="/chat/:id" component={AIChat} />
       {isAuthenticated && (
         <>
-          <Route path="/chat/:id" component={AIChat} />
           <Route path="/dashboard" component={Dashboard} />
-          <Route path="/admin" component={AdminDashboard} />
           <Route path="/history" component={ConversationHistory} />
           <Route path="/settings" component={Settings} />
+          <Route path="/admin" component={AdminDashboard} />
         </>
       )}
-      <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -45,10 +48,10 @@ function Router() {
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider defaultTheme="light">
+      <ThemeProvider>
         <TooltipProvider>
-          <Toaster />
           <Router />
+          <Toaster />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
