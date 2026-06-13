@@ -33,7 +33,7 @@ async function startServer() {
   const server = createServer(app);
 
   try {
-    initDatabase();
+    await initDatabase();
     console.log("✅ SQLite database initialized");
   } catch (err) {
     console.error("❌ Failed to initialize database:", err);
