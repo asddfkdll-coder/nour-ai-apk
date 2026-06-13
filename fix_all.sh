@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "🔧 Fixing ALL 9 critical errors in Nour AI..."
+echo "🔧 Fixing ALL 14 errors in Nour AI..."
 
 # ============================================
 # FIX 1: server/ai/engine.ts (5 errors)
@@ -250,7 +250,7 @@ pnpm build
 echo ""
 echo "📤 Pushing to GitHub..."
 git add -A
-git commit -m "fix(ts): resolve all 9 critical TypeScript errors
+git commit -m "fix(ts): resolve all 14 TypeScript errors
 
 - ai/engine.ts: Add Promise<void>, Promise<AIResponse>, Promise<any[]>, Record<number, string[]>
 - middleware/auth.ts: Add Promise<void>, Promise<string>
@@ -261,4 +261,4 @@ git commit -m "fix(ts): resolve all 9 critical TypeScript errors
 git push
 
 echo ""
-echo "✅✅✅ ALL 9 ERRORS FIXED! ✅✅✅"
+echo "✅✅✅ ALL 14 ERRORS FIXED! ✅✅✅"
