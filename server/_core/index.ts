@@ -2,7 +2,7 @@
  * @module _core/index
  * @description Main server entry point for Nour AI
  * @security-note Security middleware applied before all routes
- * @modified 2026-06-13 - Fixed for better-sqlite3 sync API
+ * @modified 2026-06-13 - Fixed for node:sqlite built-in
  */
 
 import "dotenv/config";
@@ -86,6 +86,8 @@ const aiLimiter = rateLimit({
 /**
  * @function isPortAvailable
  * @description Check if a port is available
+ * @param {number} port - Port number to check
+ * @returns {Promise<boolean>}
  */
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise((resolve) => {
@@ -100,6 +102,8 @@ function isPortAvailable(port: number): Promise<boolean> {
 /**
  * @function findAvailablePort
  * @description Find first available port starting from preferred
+ * @param {number} [startPort=3000] - Starting port number
+ * @returns {Promise<number>}
  */
 async function findAvailablePort(startPort: number = 3000): Promise<number> {
   for (let port = startPort; port < startPort + 20; port++) {
@@ -125,7 +129,7 @@ async function startServer() {
   app.use(express.json({ limit: "10mb" }));
   app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
-  // Initialize database (sync with better-sqlite3)
+  // Initialize database (sync with node:sqlite)
   try {
     initDatabase();
     console.log("✅ Database initialized");

@@ -22,6 +22,10 @@ export interface AuthRequest extends Request {
 /**
  * @function authenticateToken
  * @description Express middleware to verify JWT token
+ * @param {AuthRequest} req - Express request
+ * @param {Response} res - Express response
+ * @param {NextFunction} next - Next middleware
+ * @returns {Promise<void>}
  * @security-note Returns 401 for missing token, 403 for invalid token
  */
 export async function authenticateToken(
@@ -57,6 +61,8 @@ export async function authenticateToken(
 /**
  * @function generateToken
  * @description Generate JWT token for authenticated user
+ * @param {Object} user - User data
+ * @returns {Promise<string>}
  * @security-note 24h expiration, HS256 algorithm
  */
 export async function generateToken(user: {

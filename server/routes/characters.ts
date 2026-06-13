@@ -1,14 +1,23 @@
+/**
+ * @module routes/characters
+ * @description Character management routes for Nour AI
+ */
+
 import { Router } from "express";
-import { getDb } from "../db/sqlite";
-import { authenticateToken } from "../middleware/auth";
+import { getDb } from "../db/sqlite.js";
+import { authenticateToken } from "../middleware/auth.js";
 
 const router = Router();
 
-// GET /api/characters - قائمة الشخصيات
+/**
+ * @route GET /api/characters
+ * @description List all available characters
+ * @security-note Public endpoint - no auth required
+ */
 router.get("/", async (_req, res) => {
   try {
     const db = getDb();
-    const characters = await db.all("SELECT id, name, description, avatar_url, personality FROM characters");
+    const characters = db.all("SELECT id, name, description, avatar_url, personality FROM characters");
     res.json({ success: true, characters });
   } catch (error) {
     console.error("Characters Error:", error);
@@ -16,11 +25,14 @@ router.get("/", async (_req, res) => {
   }
 });
 
-// GET /api/characters/:id - تفاصيل شخصية
+/**
+ * @route GET /api/characters/:id
+ * @description Get single character details
+ */
 router.get("/:id", async (req, res) => {
   try {
     const db = getDb();
-    const character = await db.get(
+    const character = db.get(
       "SELECT id, name, description, avatar_url, personality FROM characters WHERE id = ?",
       [req.params.id]
     );

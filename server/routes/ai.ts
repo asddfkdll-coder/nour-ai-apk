@@ -1,10 +1,20 @@
+/**
+ * @module routes/ai
+ * @description AI chat routes for Nour AI
+ * @security-note Rate limited (10/min), JWT protected
+ */
+
 import { Router } from "express";
-import { aiEngine } from "../ai/engine";
-import { authenticateToken } from "../middleware/auth";
+import { aiEngine } from "../ai/engine.js";
+import { authenticateToken } from "../middleware/auth.js";
 
 const router = Router();
 
-// POST /api/ai/chat - محادثة مع الشخصية
+/**
+ * @route POST /api/ai/chat
+ * @description Send message to AI character
+ * @security-note Validates input, saves to database
+ */
 router.post("/chat", authenticateToken, async (req, res) => {
   try {
     const { characterId, message } = req.body;
@@ -22,7 +32,10 @@ router.post("/chat", authenticateToken, async (req, res) => {
   }
 });
 
-// GET /api/ai/history/:characterId - سجل المحادثات
+/**
+ * @route GET /api/ai/history/:characterId
+ * @description Get AI chat history
+ */
 router.get("/history/:characterId", authenticateToken, async (req, res) => {
   try {
     const characterId = parseInt(req.params.characterId);
@@ -36,7 +49,10 @@ router.get("/history/:characterId", authenticateToken, async (req, res) => {
   }
 });
 
-// GET /api/ai/status - حالة محرك AI
+/**
+ * @route GET /api/ai/status
+ * @description Get AI engine status (public)
+ */
 router.get("/status", async (_req, res) => {
   try {
     const status = await aiEngine.getStatus();

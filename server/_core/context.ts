@@ -15,6 +15,8 @@ export type TrpcContext = {
 /**
  * @function createContext
  * @description Create tRPC context from Express request
+ * @param {CreateExpressContextOptions} opts - Express context options
+ * @returns {Promise<TrpcContext>}
  * @security-note Does NOT throw on missing auth - public procedures allowed
  */
 export async function createContext(

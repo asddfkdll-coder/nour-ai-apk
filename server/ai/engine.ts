@@ -28,6 +28,7 @@ class AIEngine {
   /**
    * @method loadModel
    * @description Initialize AI model (simulated)
+   * @returns {Promise<void>}
    */
   async loadModel(): Promise<void> {
     console.log("🧠 AI Engine initialized (simulated)");
@@ -37,6 +38,10 @@ class AIEngine {
   /**
    * @method chat
    * @description Generate response for character chat
+   * @param {number} characterId - Character ID
+   * @param {string} message - User message
+   * @param {number} [userId] - Optional user ID
+   * @returns {Promise<AIResponse>}
    * @security-note Input sanitized before processing
    */
   async chat(characterId: number, message: string, userId?: number): Promise<AIResponse> {
@@ -46,8 +51,8 @@ class AIEngine {
 
     const response = await this.generateResponse(characterId, message);
 
-    // Save to database
-    await this.db.saveMessage({
+    // Save user message
+    this.db.saveMessage({
       characterId,
       userId: userId || 0,
       content: message,
@@ -56,7 +61,8 @@ class AIEngine {
       createdAt: new Date(),
     });
 
-    await this.db.saveMessage({
+    // Save AI response
+    this.db.saveMessage({
       characterId,
       userId: userId || 0,
       content: response.text,
@@ -72,6 +78,7 @@ class AIEngine {
    * @method generateResponse
    * @private
    * @description Generate contextual response based on character
+   * @returns {Promise<AIResponse>}
    */
   private async generateResponse(characterId: number, _message: string): Promise<AIResponse> {
     const responses: Record<number, string[]> = {
@@ -105,6 +112,9 @@ class AIEngine {
   /**
    * @method getHistory
    * @description Get chat history for a character
+   * @param {number} characterId - Character ID
+   * @param {number} [userId] - Optional user ID
+   * @returns {Promise<any[]>}
    */
   async getHistory(characterId: number, userId?: number): Promise<any[]> {
     return this.db.getMessages(characterId, userId);
@@ -113,6 +123,7 @@ class AIEngine {
   /**
    * @method getStatus
    * @description Get AI engine status
+   * @returns {Promise<{loaded: boolean; ready: boolean}>}
    */
   async getStatus(): Promise<{ loaded: boolean; ready: boolean }> {
     return {

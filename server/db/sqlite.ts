@@ -32,7 +32,7 @@ let db: DatabaseSync | null = null;
 export function initDatabase(): void {
   try {
     db = new DatabaseSync(DB_PATH);
-    
+
     // Enable WAL mode for better performance
     db.exec("PRAGMA journal_mode = WAL;");
     db.exec("PRAGMA foreign_keys = ON;");
@@ -86,7 +86,7 @@ export function initDatabase(): void {
     // Insert default characters if table is empty
     const countStmt = db.prepare("SELECT COUNT(*) as count FROM characters");
     const count = countStmt.get() as { count: number };
-    
+
     if (count.count === 0) {
       const insertStmt = db.prepare(
         "INSERT INTO characters (name, description, personality) VALUES (?, ?, ?)"
@@ -131,17 +131,17 @@ export class DatabaseService {
     const db = getDb();
     if (userId) {
       const stmt = db.prepare(
-        `SELECT * FROM messages 
-         WHERE character_id = ? AND user_id = ? 
-         ORDER BY created_at DESC 
+        `SELECT * FROM messages
+         WHERE character_id = ? AND user_id = ?
+         ORDER BY created_at DESC
          LIMIT 50`
       );
       return stmt.all(characterId, userId) as any[];
     }
     const stmt = db.prepare(
-      `SELECT * FROM messages 
-       WHERE character_id = ? 
-       ORDER BY created_at DESC 
+      `SELECT * FROM messages
+       WHERE character_id = ?
+       ORDER BY created_at DESC
        LIMIT 50`
     );
     return stmt.all(characterId) as any[];
@@ -162,7 +162,7 @@ export class DatabaseService {
   }): void {
     const db = getDb();
     const stmt = db.prepare(
-      `INSERT INTO messages (character_id, user_id, content, response, role, created_at) 
+      `INSERT INTO messages (character_id, user_id, content, response, role, created_at)
        VALUES (?, ?, ?, ?, ?, ?)`
     );
     stmt.run(

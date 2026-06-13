@@ -1,11 +1,21 @@
+/**
+ * @module routes/auth
+ * @description Authentication routes for Nour AI
+ * @security-note Passwords hashed with bcrypt (salt 12), JWT tokens (HS256, 24h)
+ */
+
 import { Router } from "express";
 import bcrypt from "bcryptjs";
-import { getDb } from "../db/sqlite";
-import { generateToken } from "../middleware/auth";
+import { getDb } from "../db/sqlite.js";
+import { generateToken } from "../middleware/auth.js";
 
 const router = Router();
 
-// POST /api/auth/register
+/**
+ * @route POST /api/auth/register
+ * @description Register new user account
+ * @security-note Validates input, checks duplicates, hashes password
+ */
 router.post("/register", async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -19,20 +29,20 @@ router.post("/register", async (req, res) => {
     }
 
     const db = getDb();
-    const existingUser = await db.get("SELECT * FROM users WHERE email = ? OR username = ?", [email, username]);
+    const existingUser = db.get("SELECT * FROM users WHERE email = ? OR username = ?", [email, username]);
 
     if (existingUser) {
       return res.status(409).json({ error: "User already exists" });
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
-    const result = await db.run(
+    const result = db.run(
       "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
       [username, email, passwordHash]
     );
 
     const token = await generateToken({
-      id: result.lastID!,
+      id: Number(result.lastInsertRowid),
       email,
       username
     });
@@ -40,7 +50,7 @@ router.post("/register", async (req, res) => {
     res.status(201).json({
       success: true,
       token,
-      user: { id: result.lastID, username, email }
+      user: { id: Number(result.lastInsertRowid), username, email }
     });
   } catch (error) {
     console.error("Register Error:", error);
@@ -48,7 +58,11 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// POST /api/auth/login
+/**
+ * @route POST /api/auth/login
+ * @description Authenticate user and return JWT
+ * @security-note Constant-time comparison to prevent timing attacks
+ */
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -58,7 +72,7 @@ router.post("/login", async (req, res) => {
     }
 
     const db = getDb();
-    const user = await db.get("SELECT * FROM users WHERE email = ?", [email]);
+    const user = db.get("SELECT * FROM users WHERE email = ?", [email]);
 
     if (!user) {
       return res.status(401).json({ error: "Invalid credentials" });
