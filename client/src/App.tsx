@@ -17,7 +17,6 @@ import { Spinner } from "./components/ui/spinner";
 
 function Router() {
   const { isAuthenticated, loading } = useAuth();
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -25,7 +24,6 @@ function Router() {
       </div>
     );
   }
-
   return (
     <Switch>
       <Route path="/" component={Home} />

@@ -1,6 +1,6 @@
 // server/_core/index.ts
 import "dotenv/config";
-import express2 from "express";
+import express from "express";
 import { createServer } from "http";
 import net from "net";
 import cors from "cors";
@@ -204,9 +204,7 @@ var appRouter = t.router({
         return null;
       }
     }),
-    logout: t.procedure.mutation(async () => {
-      return { success: true };
-    })
+    logout: t.procedure.mutation(async () => ({ success: true }))
   }),
   characters: t.router({
     list: t.procedure.query(async () => {
@@ -220,20 +218,6 @@ var appRouter = t.router({
 async function createContext(opts) {
   const authReq = opts.req;
   return { req: opts.req, res: opts.res, user: authReq.user || null };
-}
-
-// server/_core/vite.ts
-import express from "express";
-import path2 from "path";
-import { fileURLToPath as fileURLToPath2 } from "url";
-var __filename2 = fileURLToPath2(import.meta.url);
-var __dirname2 = path2.dirname(__filename2);
-function serveStatic(app) {
-  const distPath = path2.resolve(__dirname2, "../../dist/public");
-  app.use(express.static(distPath));
-  app.get("*", (_req, res) => {
-    res.sendFile(path2.join(distPath, "index.html"));
-  });
 }
 
 // server/routes/health.ts
@@ -488,9 +472,53 @@ router5.post("/login", async (req, res) => {
 var auth_default = router5;
 
 // server/_core/index.ts
-var securityMiddleware = [helmet({ contentSecurityPolicy: { directives: { defaultSrc: ["'self'"], styleSrc: ["'self'", "'unsafe-inline'"], scriptSrc: ["'self'"], imgSrc: ["'self'", "data:", "blob:", "https:"], connectSrc: ["'self'", "http://localhost:3000", "capacitor://localhost"], fontSrc: ["'self'", "data:"] } }, crossOriginEmbedderPolicy: false }), cors({ origin: ["http://localhost:3000", "http://localhost:5173", "capacitor://localhost", "http://localhost", "http://127.0.0.1:3000", "http://127.0.0.1:5173"], credentials: true, methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], allowedHeaders: ["Content-Type", "Authorization"] })];
-var limiter = rateLimit({ windowMs: 15 * 60 * 1e3, max: 100, standardHeaders: true, legacyHeaders: false, message: { error: "Too many requests" }, skip: (req) => req.path === "/api/health" });
-var aiLimiter = rateLimit({ windowMs: 60 * 1e3, max: 10, standardHeaders: true, legacyHeaders: false, message: { error: "AI rate limit exceeded" } });
+import path2 from "path";
+import { fileURLToPath as fileURLToPath2 } from "url";
+import fs2 from "fs";
+var __filename2 = fileURLToPath2(import.meta.url);
+var __dirname2 = path2.dirname(__filename2);
+var securityMiddleware = [
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", "data:", "blob:", "https:"],
+        connectSrc: ["'self'", "http://localhost:3000", "capacitor://localhost"],
+        fontSrc: ["'self'", "data:"]
+      }
+    },
+    crossOriginEmbedderPolicy: false
+  }),
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "capacitor://localhost",
+      "http://localhost",
+      "http://127.0.0.1:3000",
+      "http://0.0.0.0:3000"
+    ],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+  })
+];
+var limiter = rateLimit({
+  windowMs: 15 * 60 * 1e3,
+  max: 1e3,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many requests" },
+  skip: (req) => req.path === "/api/health"
+});
+var aiLimiter = rateLimit({
+  windowMs: 60 * 1e3,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "AI rate limit exceeded" }
+});
 function isPortAvailable(port) {
   return new Promise((resolve) => {
     const server = net.createServer();
@@ -506,13 +534,62 @@ async function findAvailablePort(startPort = 3e3) {
   }
   throw new Error(`No available port found starting from ${startPort}`);
 }
+function serveStatic(app) {
+  const distPath = path2.resolve(__dirname2, "../../dist/public");
+  const clientPath = path2.resolve(__dirname2, "../../client/dist");
+  let servePath = "";
+  if (fs2.existsSync(distPath)) servePath = distPath;
+  else if (fs2.existsSync(clientPath)) servePath = clientPath;
+  if (servePath) {
+    app.use(express.static(servePath));
+    app.get("*", (req, res) => {
+      if (req.path.startsWith("/api") || req.path.startsWith("/trpc")) {
+        return res.status(404).json({ error: "API endpoint not found" });
+      }
+      const indexPath = path2.join(servePath, "index.html");
+      if (fs2.existsSync(indexPath)) {
+        res.sendFile(indexPath);
+      } else {
+        res.status(404).send("<h1>Nour AI</h1><p>Building... Please run: pnpm build</p>");
+      }
+    });
+  } else {
+    app.get("*", (req, res) => {
+      if (req.path.startsWith("/api") || req.path.startsWith("/trpc")) {
+        return res.status(404).json({ error: "API endpoint not found" });
+      }
+      res.send(`
+        <!DOCTYPE html>
+        <html dir="rtl" lang="ar">
+        <head><meta charset="UTF-8"><title>\u0646\u0648\u0631 AI</title>
+        <style>body{font-family:system-ui;background:#0f172a;color:#e2e8f0;padding:40px;text-align:center}
+        h1{color:#38bdf8}a{color:#818cf8}</style></head>
+        <body>
+        <h1>\u{1F680} \u0646\u0648\u0631 AI Server</h1>
+        <p>\u0627\u0644\u0633\u064A\u0631\u0641\u0631 \u064A\u0639\u0645\u0644 \u0639\u0644\u0649 \u0627\u0644\u0645\u0646\u0641\u0630 ${process.env.PORT || 3e3}</p>
+        <p>\u0627\u0644\u062D\u0627\u0644\u0629: <a href="/api/health">/api/health</a></p>
+        <p><strong>\u0645\u0644\u0627\u062D\u0638\u0629:</strong> \u0627\u0644\u0648\u0627\u062C\u0647\u0629 \u0644\u0645 \u062A\u064F\u0628\u0646\u064E \u0628\u0639\u062F. \u0646\u0641\u0651\u0630: <code>pnpm build</code></p>
+        <hr>
+        <h2>\u0646\u0642\u0627\u0637 \u0627\u0644\u0646\u0647\u0627\u064A\u0629:</h2>
+        <ul style="list-style:none;padding:0">
+          <li>GET <a href="/api/health">/api/health</a> - \u0641\u062D\u0635 \u0627\u0644\u0635\u062D\u0629</li>
+          <li>GET <a href="/api/characters">/api/characters</a> - \u0627\u0644\u0634\u062E\u0635\u064A\u0627\u062A</li>
+          <li>POST /api/auth/register - \u062A\u0633\u062C\u064A\u0644</li>
+          <li>POST /api/auth/login - \u062F\u062E\u0648\u0644</li>
+          <li>POST /api/ai/chat - \u0645\u062D\u0627\u062F\u062B\u0629 AI</li>
+        </ul>
+        </body></html>
+      `);
+    });
+  }
+}
 async function startServer() {
-  const app = express2();
+  const app = express();
   const server = createServer(app);
   app.use(...securityMiddleware);
   app.use(limiter);
-  app.use(express2.json({ limit: "10mb" }));
-  app.use(express2.urlencoded({ limit: "10mb", extended: true }));
+  app.use(express.json({ limit: "10mb" }));
+  app.use(express.urlencoded({ limit: "10mb", extended: true }));
   try {
     initDatabase();
     console.log("\u2705 Database initialized");
@@ -531,9 +608,11 @@ async function startServer() {
   const preferredPort = parseInt(process.env.PORT || "3000");
   const port = await findAvailablePort(preferredPort);
   if (port !== preferredPort) console.log(`\u26A0\uFE0F Port ${preferredPort} busy, using ${port}`);
-  server.listen(port, () => {
+  server.listen(port, "0.0.0.0", () => {
     console.log(`\u{1F680} Nour AI Server running on http://localhost:${port}/`);
+    console.log(`\u{1F310} Network: http://0.0.0.0:${port}/`);
     console.log(`\u{1F512} Security: Enabled | \u{1F9E0} AI: Loading | \u{1F4CA} Health: /api/health`);
+    console.log(`\u{1F4F1} Open browser: http://localhost:${port}/`);
   });
 }
 startServer().catch((err) => {

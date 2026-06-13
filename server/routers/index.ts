@@ -1,17 +1,9 @@
-/**
- * @module routers/index
- * @description tRPC router for Nour AI
- * @modified 2026-06-13 - Added auth router, characters router
- * @security-note JWT verification with jose, clock tolerance 60s
- */
-
 import { initTRPC } from "@trpc/server";
 import { TrpcContext } from "../_core/context.js";
 import { getDb } from "../db/sqlite.js";
 import { jwtVerify } from "jose";
 
 const t = initTRPC.context<TrpcContext>().create();
-
 const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || "nour-ai-secret-key-change-in-production"
 );
@@ -29,19 +21,14 @@ export const appRouter = t.router({
       try {
         const { payload } = await jwtVerify(token, JWT_SECRET, { clockTolerance: 60 });
         return {
-          id: payload.userId as number,
-          email: payload.email as string,
-          username: payload.username as string,
-          role: (payload.role as string) || "user",
+          id: payload.userId,
+          email: payload.email,
+          username: payload.username,
+          role: payload.role || "user",
         };
-      } catch {
-        return null;
-      }
+      } catch { return null; }
     }),
-
-    logout: t.procedure.mutation(async () => {
-      return { success: true };
-    }),
+    logout: t.procedure.mutation(async () => ({ success: true })),
   }),
 
   characters: t.router({

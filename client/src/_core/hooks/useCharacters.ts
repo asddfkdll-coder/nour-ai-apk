@@ -1,9 +1,3 @@
-/**
- * @hook useCharacters
- * @description Fetch characters from local API
- * @security-note Public endpoint, no auth required
- */
-
 import { useState, useEffect } from "react";
 
 export interface Character {
@@ -15,18 +9,14 @@ export interface Character {
 }
 
 export function useCharacters() {
-  const [data, setData] = useState<Character[]>([]);
+  const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetch("/api/characters")
       .then((res) => res.json())
-      .then((result) => {
-        if (result.success) {
-          setData(result.characters);
-        }
-      })
+      .then((result) => { if (result.success) setData(result.characters); })
       .catch((err) => setError(err))
       .finally(() => setIsLoading(false));
   }, []);
@@ -34,27 +24,19 @@ export function useCharacters() {
   return { data, isLoading, error };
 }
 
-/**
- * @hook useNetwork
- * @description Simple online/offline detection
- */
 export function useNetwork() {
   const [isOnline, setIsOnline] = useState(
     typeof navigator !== "undefined" ? navigator.onLine : true
   );
-
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
-
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
-
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
     };
   }, []);
-
   return { isOnline };
 }

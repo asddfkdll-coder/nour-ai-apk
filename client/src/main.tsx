@@ -10,12 +10,8 @@ const queryClient = new QueryClient();
 
 const getBaseUrl = () => {
   if (typeof window === "undefined") return "";
-  if (window.location.protocol === "capacitor:") {
-    return "http://localhost:3000";
-  }
-  return window.location.origin.includes("localhost")
-    ? "http://localhost:3000"
-    : window.location.origin;
+  if (window.location.protocol === "capacitor:") return "http://localhost:3000";
+  return "";
 };
 
 const trpcClient = trpc.createClient({

@@ -1,9 +1,3 @@
-/**
- * @page Register
- * @description Local authentication register page
- * @security-note Validates password length >= 6, uses bcrypt on server
- */
-
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -19,27 +13,21 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, email, password }),
       });
-
       const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || "Registration failed");
-      }
-
+      if (!res.ok) throw new Error(data.error || "Registration failed");
       localStorage.setItem("nour-ai-token", data.token);
-      toast.success("Account created successfully!");
+      toast.success("Account created!");
       setLocation("/");
-    } catch (err: any) {
+    } catch (err) {
       toast.error(err.message);
     } finally {
       setLoading(false);
@@ -56,48 +44,22 @@ export default function Register() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="username">Username</Label>
-              <Input
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Your name"
-                required
-              />
+              <Input id="username" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Your name" required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
-                required
-              />
+              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="your@email.com" required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Min 6 characters"
-                required
-              />
+              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Min 6 characters" required />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Creating account..." : "Create Account"}
+              {loading ? "Creating..." : "Create Account"}
             </Button>
             <p className="text-center text-sm text-muted-foreground">
               Already have an account?{" "}
-              <button
-                type="button"
-                onClick={() => setLocation("/login")}
-                className="text-primary hover:underline"
-              >
-                Sign In
-              </button>
+              <button type="button" onClick={() => setLocation("/login")} className="text-primary hover:underline">Sign In</button>
             </p>
           </form>
         </CardContent>
