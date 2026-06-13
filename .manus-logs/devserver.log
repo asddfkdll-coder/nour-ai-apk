@@ -1,0 +1,30 @@
+[2026-06-04T14:10:30.627Z] Starting dev server with command: pnpm run dev
+[2026-06-04T14:10:32.879Z] > nour-ai-app@1.0.0 dev /home/ubuntu/nour-ai-app
+[2026-06-04T14:10:32.879Z] > NODE_ENV=development tsx watch server/_core/index.ts
+[2026-06-04T14:10:34.645Z] [OAuth] Initialized with baseURL: https://api.manus.im
+[2026-06-04T14:10:34.923Z] Server running on http://localhost:3000/
+[2026-06-04T14:15:13.345Z] 2:15:13 PM [tsx] change in ./drizzle/schema.ts Restarting...
+[2026-06-04T14:15:13.375Z] c
+[2026-06-04T14:15:15.039Z] [OAuth] Initialized with baseURL: https://api.manus.im
+[2026-06-04T14:15:15.288Z] Server running on http://localhost:3000/
+[2026-06-04T14:15:56.576Z] 2:15:56 PM [tsx] change in ./server/db.ts Restarting...
+[2026-06-04T14:15:56.587Z] c
+[2026-06-04T14:15:58.214Z] [OAuth] Initialized with baseURL: https://api.manus.im
+[2026-06-04T14:15:58.452Z] Server running on http://localhost:3000/
+[2026-06-04T14:16:13.123Z] 2:16:13 PM [tsx] change in ./server/db.ts Restarting...
+[2026-06-04T14:16:13.167Z] c
+[2026-06-04T14:16:14.877Z] [OAuth] Initialized with baseURL: https://api.manus.im
+[2026-06-04T14:16:15.123Z] Server running on http://localhost:3000/
+[2026-06-04T14:19:19.287Z] 2:19:19 PM [tsx] change in ./server/routers.ts Restarting...
+[2026-06-04T14:19:19.307Z] c
+[2026-06-04T14:19:21.243Z] [OAuth] Initialized with baseURL: https://api.manus.im
+[2026-06-04T14:19:21.476Z] Server running on http://localhost:3000/
+[2026-06-04T14:19:37.705Z] 2:19:37 PM [tsx] change in ./server/routers.ts Restarting...
+[2026-06-04T14:19:37.752Z] c
+[2026-06-04T14:19:39.295Z] [OAuth] Initialized with baseURL: https://api.manus.im
+[2026-06-04T14:19:39.518Z] Server running on http://localhost:3000/
+[2026-06-04T14:24:07.000Z] [baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[2026-06-04T14:24:09.947Z] 2:24:09 PM [vite] (client) ✨ new dependencies optimized: recharts, @radix-ui/react-select
+[2026-06-04T14:24:09.947Z] 2:24:09 PM [vite] (client) ✨ optimized dependencies changed. reloading
+[2026-06-04T14:24:10.851Z] [Auth] Missing session cookie
+[2026-06-04T14:24:11.208Z] [Auth] Missing session cookie

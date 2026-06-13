@@ -1,0 +1,43 @@
+{
+  "build_command": "pnpm run build",
+  "capabilities": [
+    "server",
+    "db",
+    "user"
+  ],
+  "dev_command": "pnpm run dev",
+  "env_vars": {
+    "DATABASE_URL": "mysql://3quqBHh75NFvw29.root:9fpbvxeysd20up16b0ju@gateway06.us-east-1.prod.aws.tidbcloud.com:4000/m9WAhd4AYjUdPwhoT4FedT?ssl={\"rejectUnauthorized\":true}"
+  },
+  "experiments": [
+    "no_db_push"
+  ],
+  "git_remote": {
+    "repo_url": "s3://vida-prod-gitrepo/webdev-git/310519663550956598/m9WAhd4AYjUdPwhoT4FedT",
+    "access_key_id": "ASIAZV3A2ECZOYVBV2PI",
+    "secret_access_key": "S7hE4Ladxud2mNOtM2XXRetZuralD56Wzb3Cl3Im",
+    "session_token": "IQoJb3JpZ2luX2VjEI///////////wEaCXVzLWVhc3QtMSJIMEYCIQC+X+X/ysdY26qkv67DXf3VtUr0D/6ofjaTuE7pgpbCJwIhAKL7oRNcmR9ftUY5i97/+WY9nrzuFt73n52I3OtveGwDKvYDCFcQBBoMNjY1Mzg2MDk4ODY2IgwBnlkdevQ/VSQOenAq0wMBvq2nN/jewbx74gh1hzFUMiyjmc7xOtK5aSq3kIImpSBATlkWwznMDBa415CllP6uh/rVJTvFtnZayIHuwWcJYTn0twZr8jPoSzYXFfQZXujnAimDf4hlm/8LvnBPa4HHCxff3oT5rWo0ltmRlWapoYr7pH6aV6PUfWT+FSM34806qkKB14IgjyTXpUX0mZGc+dTBbLAYhdq3fxyq0WlKy7z25jlxp7C6LK1xILvAg0u476aU0KOC+y/eAoEiHiMexG0Pv7dqy+90UJtcCuHfSHh5aZ3BbeP0wCulZnhSVsjHy8ck4vQHC+xTduuh7joNSq0GQqQeyVFjOtyQROo2aLN83pZIYcBWtAe1I+pC0vAkMhRNcerzEtidMLAyAORHbvjmSZtBdWszbfkFuxP2w6CD1BMTQrXbTDLkCjtw/PFbm42VpbCw46OWlv62z1V0uMsH10pj5Y+INwOl7nppUUz72+WoRlvJlD4pGQQkQNZLs543YRwloDNbSKfAn2F58DWPP28NgbJy42o6UPblyuyRh/hqpzYTk/B9DWXPlRk8IsyBjVNi3Y83eLfLyLEZxUojMoNpTzl9zSB0tDseXmSLR5haucExd7l4pqFr437GdDDNjobRBjqcAWg/3UjOjQF1D9+SDRzkjUIQJ92WRNO20kAHyL+kLqDKNP8evXzrNPStbE7KZI0R1/2GSu9yeINrONtqIG3cc0i6+3vXKZy8pLxTloZRIagz07zkBV7rtnAxjBULHAZN99Q1QlVe6n9B1ChFRv+BU8BfAwLdkmBstd70ty5AKhS9E/UMsE4et49pFlhdNmCuqaOY6Z0NOrj6ag7/nw==",
+    "expiration": "2026-06-05T02:10:21.000Z"
+  },
+  "name": "nour-ai-app",
+  "path": "/home/ubuntu/nour-ai-app",
+  "port": 3000,
+  "secrets": {
+    "BUILT_IN_FORGE_API_KEY": "jvbJiUutvHPVHLZGKqhtBU",
+    "BUILT_IN_FORGE_API_URL": "https://forge.manus.ai",
+    "JWT_SECRET": "7J2GDK3sbVs8Ge6Bwi4wfU",
+    "OAUTH_SERVER_URL": "https://api.manus.im",
+    "OWNER_NAME": "بدر تكنولوجي",
+    "OWNER_OPEN_ID": "4GpEEs9nC54UH4oRZ3guXc",
+    "VITE_ANALYTICS_ENDPOINT": "https://manus-analytics.com",
+    "VITE_ANALYTICS_WEBSITE_ID": "884609d9-501b-4f16-a267-a14c1b993ab3",
+    "VITE_APP_ID": "m9WAhd4AYjUdPwhoT4FedT",
+    "VITE_APP_LOGO": "",
+    "VITE_APP_TITLE": "Nour Cognitive AI System",
+    "VITE_FRONTEND_FORGE_API_KEY": "JMgSobtLwWAag8yJTnaM89",
+    "VITE_FRONTEND_FORGE_API_URL": "https://forge.manus.ai",
+    "VITE_OAUTH_PORTAL_URL": "https://manus.im"
+  },
+  "template_id": "web-db-user",
+  "test_command": "pnpm test"
+}

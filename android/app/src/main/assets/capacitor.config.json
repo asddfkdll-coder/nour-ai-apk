@@ -1,0 +1,15 @@
+{
+	"appId": "com.nour.ai",
+	"appName": "Nour AI",
+	"webDir": "dist/public",
+	"server": {
+		"url": "http://localhost:3000",
+		"cleartext": true,
+		"allowNavigation": [
+			"localhost"
+		]
+	},
+	"android": {
+		"allowMixedContent": true
+	}
+}
